@@ -1,0 +1,60 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+/**
+ *
+ * @author lsiphoso
+ */
+ import jade.core.Agent;
+import jade.core.behaviours.*;
+import jade.lang.acl.ACLMessage;
+import jade.lang.acl.MessageTemplate;
+import jade.domain.*;
+import jade.domain.FIPAAgentManagement.DFAgentDescription;
+import jade.domain.FIPAAgentManagement.ServiceDescription;
+import java.util.Random;
+public class SellerAgent1 extends Agent {
+   
+        Random rand = new Random();
+	int price = rand.nextInt(100);
+	String model;
+	protected void setup() {
+	   
+               
+	
+                    DFAgentDescription dfd = new DFAgentDescription();
+                    ServiceDescription service1 = new ServiceDescription();
+                    service1.setType("Cellphone-buying-and-selling");
+                    service1.setName("Cellphone");
+                    dfd.addServices(service1);
+
+                    try{
+                           DFService.register(this,dfd);
+                  } catch (FIPAException e) {
+                            System.out.println(e+ "Exception has occurred!!");
+        }  
+        }
+                    private class Requests extends CyclicBehaviour {
+		    public void action() {
+			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.CFP);
+			ACLMessage msg = myAgent.receive(mt);
+			
+			System.out.println(getAID().getName());
+			if (msg != null) {
+				if(msg.getContent().equals("price")){
+
+					ACLMessage reply = msg.createReply();
+					System.out.println(getAID().getName()+" As you requested, the price of the mobile phone is : R"+price);
+					reply.setPerformative(ACLMessage.PROPOSE);
+					reply.setContent(String.valueOf(price));	
+					myAgent.send(reply);
+					}
+				    }
+				}
+			     }
+					
+}
+                   
