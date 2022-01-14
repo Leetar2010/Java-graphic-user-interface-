@@ -1,0 +1,102 @@
+import jade.core.AID;
+import jade.core.Agent;
+import jade.core.behaviours.*;
+import jade.lang.acl.ACLMessage;
+import jade.lang.acl.MessageTemplate;
+import jade.domain.DFService;
+import jade.domain.FIPAException;
+import jade.domain.FIPAAgentManagement.DFAgentDescription;
+import jade.domain.FIPAAgentManagement.ServiceDescription;
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+/**
+ *
+ * @author lsiphoso
+ */
+public class BuyerAgent1 extends Agent {
+    
+     int cheapest;
+     private SellerAgent1 a;
+     private SellerAgent2 b;
+     private SellerAgent3 c;
+     private SellerAgent4 d;
+     private SellerAgent5 f;
+    private Object result;
+    private Object myAgent;
+     
+     protected void setup(){
+
+    DFAgentDescription template = new DFAgentDescription();
+    ServiceDescription service = new ServiceDescription();
+    service.setType("Cellphone");
+    template.addServices(service);
+    
+    DFAgentDescription[] result;
+    try{
+	result = DFService.search(this,template);
+	AID[] agents = new AID[result.length];
+	for (int i = 0; i < result.length; i++) {
+	  agents[i] = result[i].getName();
+	  System.out.println(agents[i].getName());
+         }
+      }catch (FIPAException e){
+	 e.printStackTrace();
+      }
+     }
+
+	public void action(){
+            AID[] agents = null;
+		ACLMessage cfp = new ACLMessage(ACLMessage.CFP);
+				for (int i = 0; i < agents.length; ++i) {
+					cfp.addReceiver(agents[i]);
+				} 
+                                MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.CFP); 
+				cfp.setContent("Phone");
+				cfp.setConversationId("cellphone_buying_and_selling");
+				cfp.setReplyWith("cfp"+System.currentTimeMillis()); // Unique value
+				System.out.println("Buyer: Hi Sir, how much is your cell phone?");
+
+				send(cfp);
+				
+				mt = MessageTemplate.and(MessageTemplate.MatchConversationId("Cellphone"),
+						MessageTemplate.MatchInReplyTo(cfp.getReplyWith()));
+
+				ACLMessage reply = receive(mt);
+				if (reply != null) {
+					if (reply.getPerformative() == ACLMessage.PROPOSE) {
+						for (int i = 0; i < agents.length; i++){ 
+						int price = Integer.parseInt(reply.getContent());
+						agents[i]=reply.getSender();
+						System.out.println("---------------"+i+"----"+agents[i]);
+						i++;
+						a.price= cheapest;
+						if( b.price2 < a.price){
+                                                    b.price2 =  cheapest;
+                                                    
+						    System.out.println(b.price2 +"The cheapest cell phone is from Which is"+ b.getAID());
+                                                    
+						    }
+						else if(c.price3  < a.price && c.price3 < b.price2){
+						    c.price3 = cheapest;
+                                                    System.out.println(c.price3+ "Which is from" +c.getAID());
+                                                }
+					        else if( d.price4 < a.price && d.price4 < b.price2 && d.price4 < c.price3){
+						    d.price4 = cheapest;
+						    System.out.println("The cheapest cell phone is from" +d.getAID()+ "Which is" +d.price4);
+						    }
+						else if( f.price5 < a.price && f.price5< b.price2 && f.price5 < c.price3 && f.price5 < d.price4){
+						    f.price5 = cheapest;
+						    System.out.println("The cheapest cell phone is from" +f.getAID()+ "Which is" +f.price5);
+						    }
+						else 
+						    System.out.println("None is cheaper!!");
+
+                                        }
+                                }
+                                }
+        }
+}
